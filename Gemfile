@@ -16,6 +16,10 @@ gem 'bootsnap', '>= 1.1.0', require: false
 gem 'feedjira'
 gem 'httparty'
 
+# Asynchronous Jobs
+gem 'redis', '~> 4.1.2'
+gem 'sidekiq', '5.2.7'
+
 # Front-End
 gem 'twitter-bootstrap-rails'
 
