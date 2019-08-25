@@ -1,7 +1,6 @@
-class FeedGenerationWorker
+class PodcastImportWorker
   include Sidekiq::Worker
 
   def perform
-    puts 'wot'
   end
 end

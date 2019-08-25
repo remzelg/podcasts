@@ -10,25 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_14_020829) do
-
-  create_table "episodes", force: :cascade do |t|
-    t.string "title"
-    t.datetime "published"
-    t.text "content"
-    t.string "url"
-    t.string "author"
-    t.integer "feed_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
+ActiveRecord::Schema.define(version: 2019_08_25_055538) do
 
   create_table "feeds", force: :cascade do |t|
-    t.string "name"
-    t.string "url"
-    t.text "description"
+    t.string "itunes_url", null: false
+    t.string "itunes_title", null: false
+    t.string "itunes_id", null: false
+    t.string "rss_feed_url"
+    t.boolean "active", default: false
+    t.boolean "out_of_date", default: false
+    t.datetime "last_import_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["itunes_id"], name: "index_feeds_on_itunes_id", unique: true
+    t.index ["itunes_title"], name: "index_feeds_on_itunes_title", unique: true
+    t.index ["itunes_url"], name: "index_feeds_on_itunes_url", unique: true
+  end
+
+  create_table "podcasts", force: :cascade do |t|
+    t.string "title"
+    t.string "subtitle"
+    t.string "author"
+    t.string "description"
+    t.string "image_url"
   end
 
 end
