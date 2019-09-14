@@ -15,16 +15,15 @@ ActiveRecord::Schema.define(version: 2019_08_25_055538) do
   create_table "feeds", force: :cascade do |t|
     t.string "itunes_url", null: false
     t.string "itunes_title", null: false
-    t.string "itunes_id", null: false
-    t.string "rss_url"
+    t.string "rss_url", null: false
     t.boolean "active", default: false
     t.boolean "out_of_date", default: false
     t.datetime "last_import_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["itunes_id"], name: "index_feeds_on_itunes_id", unique: true
     t.index ["itunes_title"], name: "index_feeds_on_itunes_title", unique: true
     t.index ["itunes_url"], name: "index_feeds_on_itunes_url", unique: true
+    t.index ["rss_url"], name: "index_feeds_on_rss_url", unique: true
   end
 
   create_table "podcasts", force: :cascade do |t|

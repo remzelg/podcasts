@@ -1,11 +1,13 @@
 require 'open-uri'
+require 'curb'
 
 class ItunesFeedWorker
   include Sidekiq::Worker
 
+  ALPHABET = ('A'..'Z').to_a + ["*"]
   BASE_URL = "https://itunes.apple.com/us/genre/podcasts-"
-  # mt = media type. 2 indicates podcasts
   CATEGORIES =  {
+    # mt = media type. 2 indicates podcasts
     arts:                         "#{BASE_URL}arts/id1301?mt=2",
     business:                     "#{BASE_URL}business/id1321?mt=2",
     comedy:                       "#{BASE_URL}comedy/id1303?mt=2",
@@ -23,11 +25,9 @@ class ItunesFeedWorker
     tv_and_film:                  "#{BASE_URL}tv-film/id1309?mt=2",
     technology:                   "#{BASE_URL}technology/id1318?mt=2"
   }
-  ALPHABET = ('A'..'Z').to_a + ["*"]
 
   def perform
-    @podcast_ids = []
-    #import_categories
+    import_categories
     find_feeds
   end
 
@@ -64,13 +64,14 @@ private
         podcasts.each do |podcast|
           itunes_url = podcast["href"]
           itunes_title = podcast.text
-          itunes_id = url.split("/id").last
-          metadata = open("https://itunes.apple.com/lookup?id=#{itunes_id}&entity=podcast", read_timeout: 5){ |f| f.read }
+          itunes_id = itunes_url.split("/id").last
+          podcast_url = "https://itunes.apple.com/lookup?id=#{itunes_id}&entity=podcast"
+          puts "import #{podcast_url}"
+          metadata = open(podcast_url){ |f| f.read }
           rss_url = JSON.parse(metadata)["results"].first["feedUrl"]
           Feed.where(
-            itunes_url: url,
-            itunes_title: name,
-            itunes_id: itunes_id,
+            itunes_url: itunes_url,
+            itunes_title: itunes_title,
             rss_url: rss_url
           ).first_or_create
         end
