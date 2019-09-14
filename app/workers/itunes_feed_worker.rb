@@ -1,12 +1,10 @@
 require 'open-uri'
 
-class ItunesCategoriesWorker
+class ItunesFeedWorker
   include Sidekiq::Worker
 
   BASE_URL = "https://itunes.apple.com/us/genre/podcasts-"
-  ALPHABET = ('A'..'Z').to_a + ["*"]
-
-  # mt = media type. 2 indicates podcasts.
+  # mt = media type. 2 indicates podcasts
   CATEGORIES =  {
     arts:                         "#{BASE_URL}arts/id1301?mt=2",
     business:                     "#{BASE_URL}business/id1321?mt=2",
@@ -25,11 +23,12 @@ class ItunesCategoriesWorker
     tv_and_film:                  "#{BASE_URL}tv-film/id1309?mt=2",
     technology:                   "#{BASE_URL}technology/id1318?mt=2"
   }
+  ALPHABET = ('A'..'Z').to_a + ["*"]
 
   def perform
     @podcast_ids = []
-    # import_categories
-    find_podcast_ids
+    #import_categories
+    find_feeds
   end
 
 private
@@ -46,30 +45,34 @@ private
           (1..paginate_count).each do |i|
             url = alphabet_page_url+"&page=#{i}"
             puts "#{k}, #{url}"
-            csv << url
+            csv << [url]
           end
         end
       end
     end
   end
 
-  def find_podcast_ids
+  def find_feeds
     CATEGORIES.each do |k, v|
       CSV.foreach("db/categories/#{k.to_s}.csv") do |row|
         url = row[0]
-        doc = Nokogiri::HTML(open(url))
+        # TODO: Remove rescue statement when this is finished testing
+        doc = Nokogiri::HTML(open(url)) rescue break
         puts "Fetching podcasts from #{url}"
         podcasts = doc.xpath('//*[@id="selectedcontent"]/div/ul/li/a')
 
         podcasts.each do |podcast|
-          url = podcast["href"]
-          name = podcast.text May be used to limit duplicate feeds
-          id = podcast_url.split("/").last[2..20]
+          itunes_url = podcast["href"]
+          itunes_title = podcast.text
+          itunes_id = url.split("/id").last
+          metadata = open("https://itunes.apple.com/lookup?id=#{itunes_id}&entity=podcast", read_timeout: 5){ |f| f.read }
+          rss_url = JSON.parse(metadata)["results"].first["feedUrl"]
           Feed.where(
             itunes_url: url,
             itunes_title: name,
-            itunes_id: id
-          ).first_or_initialize
+            itunes_id: itunes_id,
+            rss_url: rss_url
+          ).first_or_create
         end
       end
     end

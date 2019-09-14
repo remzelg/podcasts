@@ -16,7 +16,7 @@ ActiveRecord::Schema.define(version: 2019_08_25_055538) do
     t.string "itunes_url", null: false
     t.string "itunes_title", null: false
     t.string "itunes_id", null: false
-    t.string "rss_feed_url"
+    t.string "rss_url"
     t.boolean "active", default: false
     t.boolean "out_of_date", default: false
     t.datetime "last_import_date"
@@ -33,6 +33,8 @@ ActiveRecord::Schema.define(version: 2019_08_25_055538) do
     t.string "author"
     t.string "description"
     t.string "image_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end

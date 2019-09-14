@@ -6,6 +6,7 @@ class CreatePodcasts < ActiveRecord::Migration[5.2]
       t.string :author
       t.string :description
       t.string :image_url
+      t.timestamps
     end
   end
 end
