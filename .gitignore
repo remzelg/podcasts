@@ -31,3 +31,4 @@
 /config/master.key
 
 # Ignore CSV Data files
+/db/categories/*.csv
